@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    container_name: posgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=dbtest
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=slw
+    networks:
+      - backend
+
+  wserver:
+    build: .
+    container_name: wserver
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/dbtest
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - backend
+      - frontend
+
+  wclient:
+    build:
+      context: wclient
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://127.0.0.1:8080/api
+    container_name: wclient
+    ports:
+      - "9090:80" # Map the exposed port 80 on the container to port 9090 on the host machine
+    restart: always
+    depends_on:
+      - wserver
+    networks:
+      - frontend
+
+volumes:
+  postgres-data:
+
+networks:
+  backend:
+  frontend:
+
