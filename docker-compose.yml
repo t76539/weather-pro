@@ -16,10 +16,14 @@ services:
       - backend
 
   wserver:
-    build: .
+    build:
+      context: wserver
+      dockerfile: Dockerfile
     container_name: wserver
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/dbtest
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: slw
     ports:
       - 8080:8080
     restart: always
